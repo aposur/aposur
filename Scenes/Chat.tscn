@@ -1,0 +1,48 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://Scripts/Chat.gd" type="Script" id=1]
+
+[node name="Chat" type="Control"]
+margin_left = 0.541504
+margin_top = 0.467163
+margin_right = 40.5415
+margin_bottom = 40.4672
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RoomUI" type="Panel" parent="."]
+modulate = Color( 1, 1, 1, 0.882353 )
+margin_left = -491.0
+margin_top = 50.0
+margin_right = -190.0
+margin_bottom = 250.0
+
+[node name="ChatInput" type="LineEdit" parent="RoomUI"]
+margin_left = 10.0
+margin_top = 160.0
+margin_right = 231.0
+margin_bottom = 190.0
+focus_mode = 1
+placeholder_text = "Your message here..."
+
+[node name="ChatDisplay" type="RichTextLabel" parent="RoomUI"]
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 290.0
+margin_bottom = 160.0
+meta_underlined = false
+scroll_following = true
+
+[node name="Button" type="Button" parent="RoomUI"]
+margin_left = 240.967
+margin_top = 160.226
+margin_right = 289.967
+margin_bottom = 190.226
+button_mask = 7
+text = "Send"
+[connection signal="focus_entered" from="RoomUI/ChatInput" to="." method="_on_ChatInput_focus_entered"]
+[connection signal="focus_exited" from="RoomUI/ChatInput" to="." method="_on_ChatInput_focus_exited"]
+[connection signal="text_entered" from="RoomUI/ChatInput" to="." method="_on_ChatInput_text_entered"]
+[connection signal="pressed" from="RoomUI/Button" to="." method="_on_Button_pressed"]

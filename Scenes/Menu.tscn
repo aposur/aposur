@@ -1,0 +1,70 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://Scripts/Menu.gd" type="Script" id=1]
+
+[node name="Menu" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="NameLineEdit" type="LineEdit" parent="."]
+margin_left = 448.0
+margin_top = 272.0
+margin_right = 832.0
+margin_bottom = 304.0
+max_length = 20
+placeholder_text = "Enter nickname here..."
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PasswordLineEdit" type="LineEdit" parent="."]
+margin_left = 448.0
+margin_top = 320.0
+margin_right = 832.0
+margin_bottom = 352.0
+max_length = 20
+placeholder_text = "Enter password here..."
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="JoinButton" type="Button" parent="."]
+margin_left = 448.0
+margin_top = 384.0
+margin_right = 576.0
+margin_bottom = 448.0
+text = "Join"
+
+[node name="CreateButton" type="Button" parent="."]
+margin_left = 704.0
+margin_top = 384.0
+margin_right = 832.0
+margin_bottom = 448.0
+text = "Create"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="NameLabel" type="Label" parent="."]
+margin_left = 384.0
+margin_top = 280.0
+margin_right = 448.0
+margin_bottom = 294.0
+text = "Name:"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PasswordLabel" type="Label" parent="."]
+margin_left = 384.0
+margin_top = 328.0
+margin_right = 448.0
+margin_bottom = 342.0
+text = "Password:"
+[connection signal="text_changed" from="NameLineEdit" to="." method="_on_NameLineEdit_text_changed"]
+[connection signal="pressed" from="JoinButton" to="." method="_on_JoinButton_pressed"]
+[connection signal="pressed" from="CreateButton" to="." method="_on_CreateButton_pressed"]
