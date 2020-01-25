@@ -33,38 +33,49 @@ __meta__ = {
 }
 
 [node name="JoinButton" type="Button" parent="."]
-margin_left = 448.0
+margin_left = 512.0
 margin_top = 384.0
-margin_right = 576.0
+margin_right = 768.0
 margin_bottom = 448.0
 text = "Join"
 
-[node name="CreateButton" type="Button" parent="."]
-margin_left = 704.0
-margin_top = 384.0
-margin_right = 832.0
-margin_bottom = 448.0
-text = "Create"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
 [node name="NameLabel" type="Label" parent="."]
-margin_left = 384.0
+margin_left = 320.0
 margin_top = 280.0
 margin_right = 448.0
 margin_bottom = 294.0
-text = "Name:"
+text = "Name (required):"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="PasswordLabel" type="Label" parent="."]
-margin_left = 384.0
+margin_left = 320.0
 margin_top = 328.0
 margin_right = 448.0
 margin_bottom = 342.0
-text = "Password:"
+text = "Password (optional):"
+
+[node name="InfoLabel" type="Label" parent="."]
+margin_left = 448.0
+margin_top = 360.0
+margin_right = 832.0
+margin_bottom = 374.0
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CreateButton" type="LinkButton" parent="."]
+margin_left = 1112.0
+margin_top = 688.0
+margin_right = 1264.0
+margin_bottom = 702.0
+text = "Create dedicated server"
+underline = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
 [connection signal="text_changed" from="NameLineEdit" to="." method="_on_NameLineEdit_text_changed"]
 [connection signal="pressed" from="JoinButton" to="." method="_on_JoinButton_pressed"]
 [connection signal="pressed" from="CreateButton" to="." method="_on_CreateButton_pressed"]

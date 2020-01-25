@@ -22,15 +22,19 @@ config/icon="res://Assets/Images/player.png"
 [autoload]
 
 Global_DataParser="*res://Scripts/Global_DataParser.gd"
-Global_Json_Beautifier="*res://Scripts/Global_Json_Beautifier.gd"
 Global_ItemDatabase="*res://Scripts/Global_ItemDatabase.gd"
-Global_MapDatabase="*res://Scripts/Global_MapDatabase.gd"
 Global_Network="*res://Scripts/Global_Network.gd"
+
+[debug]
+
+settings/fps/force_fps=30
 
 [display]
 
 window/size/width=1280
 window/size/height=720
+window/stretch/mode="2d"
+window/stretch/aspect="keep"
 
 [input]
 
@@ -78,5 +82,21 @@ common/physics_fps=30
 
 [rendering]
 
+quality/driver/fallback_to_gles2=true
+quality/intended_usage/framebuffer_allocation=1
+quality/intended_usage/framebuffer_allocation.mobile=1
+quality/filters/anisotropic_filter_level=1
+vram_compression/import_bptc=true
+vram_compression/import_etc=true
+vram_compression/import_pvrtc=true
+quality/shadows/filter_mode=0
+quality/reflections/texture_array_reflections=false
+quality/reflections/high_quality_ggx=false
+quality/shading/force_vertex_shading=true
+quality/shading/force_lambert_over_burley=true
+quality/shading/force_blinn_over_ggx=true
+quality/filters/use_nearest_mipmap_filter=true
+quality/subsurface_scattering/quality=0
 environment/default_clear_color=Color( 0.8, 0.737255, 0.65098, 1 )
+quality/depth/hdr=false
 environment/default_environment="res://default_env.tres"

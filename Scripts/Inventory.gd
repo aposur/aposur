@@ -26,23 +26,31 @@ func _ready():
 	visible = false
 	_item_list_2.visible = false
 	_item_list_label_2.visible = false
-	_set_center_item_visible(false)
+	set_center_item_visible(false)
 
 
 func load_data(filename:String, item_list_label:String = "Player", is_clear_items:bool = false) -> Dictionary:
 		
 	var url_data = "res://Database//data_" + item_list_label.to_lower() + "_" + filename + ".json"
-	var data = Global_DataParser.load_data(url_data)
+	var data:Dictionary = Global_DataParser.load_data(url_data)
 	
 	if (data.empty() || is_clear_items):
 		var dict:Dictionary = {"inventory":{}}
 		for slot in range (0, INVENTORY_MAX_SLOTS):
 			if(int(slot) == 0 && item_list_label == "Player" && !is_clear_items):
-				dict["inventory"][str(slot)] = {"id": "1", "amount": 100}
+				dict["inventory"][str(slot)] = {"id": "1", "amount": 1000}
 			elif(int(slot) == 1 && item_list_label == "Player" && !is_clear_items):
-				dict["inventory"][str(slot)] = {"id": "2", "amount": 100}
+				dict["inventory"][str(slot)] = {"id": "2", "amount": 1}
 			elif(int(slot) == 2 && item_list_label == "Player" && !is_clear_items):
-				dict["inventory"][str(slot)] = {"id": "3", "amount": 100}
+				dict["inventory"][str(slot)] = {"id": "3", "amount": 10}
+			elif(int(slot) == 0 && item_list_label == "Shop" && !is_clear_items):
+				dict["inventory"][str(slot)] = {"id": "1", "amount": 1000}
+			elif(int(slot) == 1 && item_list_label == "Shop" && !is_clear_items):
+				dict["inventory"][str(slot)] = {"id": "2", "amount": 10}
+			elif(int(slot) == 2 && item_list_label == "Shop" && !is_clear_items):
+				dict["inventory"][str(slot)] = {"id": "3", "amount": 1000}
+			elif(int(slot) == 3 && item_list_label == "Shop" && !is_clear_items):
+				dict["inventory"][str(slot)] = {"id": "4", "amount": 1}
 			else:
 				dict["inventory"][str(slot)] = {"id": "0", "amount": 0}
 		Global_DataParser.write_data(url_data, dict)
@@ -64,11 +72,21 @@ func load_data(filename:String, item_list_label:String = "Player", is_clear_item
 	return data
 
 
-func load_items(item_list, data) -> void:
+func load_items(item_list:Control = _item_list_1, data:Dictionary = data_player) -> void:
+	var selected_items = item_list.get_selected_items()
+	var slot_id
+	if(selected_items): # check if item was selected before reloading items
+		slot_id = selected_items[0]
+	
 	item_list.clear()
 	for slot in range(0, INVENTORY_MAX_SLOTS):
 		item_list.add_item("", null, false)
 		update_slot(slot, item_list, data)
+	
+	if(slot_id != null): # item was selected before reloading so lets reselect it
+		_item_list_1.select(slot_id)
+		_on_ItemList_item_selected(slot_id)
+#		_update_center_item(slot_id, item_list, _get_item_id_from_slot_id(slot_id, data))
 
 
 func unload_items(filename:String, item_list_label:String = "Player") -> void:
@@ -98,20 +116,22 @@ func _update_center_item(slot_id, item_list, item_id:int):
 	$Panel/ItemNameLabel.text = item_list.get_item_tooltip(slot_id)
 	$Panel/ItemSprite.texture = item_list.get_item_icon(slot_id)
 	$Panel/ItemCountLabel.text = item_list.get_item_text(slot_id)
-	$Panel/ItemDescriptionRichTextLabel.text = var2str(item_meta_data["description"])
+	$Panel/ItemDescriptionRichTextLabel.text = item_meta_data["description"]
 	$Panel/ItemPriceLabel.text = "Price: " + var2str(stepify(float(item_meta_data["sell_price"]), 0.01)).pad_decimals(2)
+	$Panel/ItemWeightLabel.text = "Weight: " + var2str(stepify(float(item_meta_data["weight"]), 0.01)).pad_decimals(2) + "kg"
 	$Panel/LineEdit.text = item_list.get_item_text(slot_id)
 	$Panel/HSlider.max_value = float(item_list.get_item_text(slot_id))
 	$Panel/HSlider.value = float(item_list.get_item_text(slot_id))
 	$Panel/HSlider.tick_count = int(item_list.get_item_text(slot_id)) / 10 + 2
 
 
-func _set_center_item_visible(is_center_item_visible):
+func set_center_item_visible(is_center_item_visible):
 	$Panel/ItemNameLabel.visible = is_center_item_visible
 	$Panel/ItemSprite.visible = is_center_item_visible
 	$Panel/ItemCountLabel.visible = is_center_item_visible
 	$Panel/ItemDescriptionRichTextLabel.visible = is_center_item_visible
 	$Panel/ItemPriceLabel.visible = is_center_item_visible
+	$Panel/ItemWeightLabel.visible = is_center_item_visible
 	$Panel/LineEdit.visible = is_center_item_visible
 	$Panel/HSlider.visible = is_center_item_visible
 	button_multi.visible = is_center_item_visible
@@ -123,17 +143,86 @@ func set_other_visible(is_visible):
 	_item_list_2.visible = is_visible
 
 
-func get_item_price(item_id:int)->float:
-	var item_meta_data = Global_ItemDatabase.get_item(str(item_id)).duplicate()
+func get_item_price(item_id:int) -> float:
+	var item_meta_data = Global_ItemDatabase.get_item(str(item_id))
 	return float(item_meta_data["sell_price"])
 
 
-func get_money(data)->float:
+func get_item_meta_data(item_id:int) -> Dictionary:
+	var item_meta_data = Global_ItemDatabase.get_item(str(item_id))
+	return item_meta_data
+
+
+func get_money_by_data(data) -> float:
 	var money:float = 0.0
 	for slot in range (0, INVENTORY_MAX_SLOTS):
 		if(int(data.inventory[str(slot)]["id"]) == 1):
 			money += float(data.inventory[str(slot)]["amount"])
 	return money
+
+
+func get_weight() -> float:
+	var weight:float = 0.0
+	for slot in range (0, INVENTORY_MAX_SLOTS):
+		var item_id:int = int(data_player.inventory[str(slot)]["id"])
+		var item_meta_data:Dictionary = get_item_meta_data(item_id)
+		if(str(item_meta_data["type"]) != "vehicle"):
+			weight += float(item_meta_data["weight"]) * float(int(data_player.inventory[str(slot)]["amount"]))
+	return weight
+
+
+func get_max_weight() -> float:
+	var max_weight:float = 0.0
+	for slot in range (0, INVENTORY_MAX_SLOTS):
+		var item_id:int = int(data_player.inventory[str(slot)]["id"])
+		var item_meta_data:Dictionary = get_item_meta_data(item_id)
+		if(str(item_meta_data["type"]) == "vehicle"):
+			max_weight += float(item_meta_data["max_weight"])
+	return max_weight
+
+
+
+func get_water() -> float:
+	var water:float = 0.0
+	for slot in range (0, INVENTORY_MAX_SLOTS):
+		if(int(data_player.inventory[str(slot)]["id"]) == 3):
+			water += float(data_player.inventory[str(slot)]["amount"])
+	return water
+
+
+func get_food() -> float:
+	var food:float = 0.0
+	for slot in range (0, INVENTORY_MAX_SLOTS):
+		if(int(data_player.inventory[str(slot)]["id"]) == 1):
+			food += float(data_player.inventory[str(slot)]["amount"])
+	return food
+
+
+func get_vehicles_min_speed() -> float:
+	var min_speed:float = 0.0
+	for slot in range (0, INVENTORY_MAX_SLOTS):
+		var item_id:int = int(data_player.inventory[str(slot)]["id"])
+		var item_meta_data:Dictionary = get_item_meta_data(item_id)
+		if(str(item_meta_data["type"]) == "vehicle"):
+			if(int(min_speed) > int(item_meta_data["max_speed"]) || int(min_speed) == 0):
+				min_speed = float(item_meta_data["max_speed"])
+	return min_speed
+
+
+func remove_item_amount_by_id(item_id:int, amount:float, data:Dictionary) -> Dictionary:
+	for slot in range (0, INVENTORY_MAX_SLOTS):
+		if(int(data.inventory[str(slot)]["id"]) == item_id):
+			data.inventory[str(slot)]["amount"] = float(data.inventory[str(slot)]["amount"])
+			if(data.inventory[str(slot)]["amount"] < amount):
+				amount = amount - data.inventory[str(slot)]["amount"]
+				data.inventory[str(slot)]["amount"] = 0.00
+				data.inventory[str(slot)]["id"] = "0"
+			else:
+				data.inventory[str(slot)]["amount"] = data.inventory[str(slot)]["amount"] - amount
+				if(data.inventory[str(slot)]["amount"] <= 0):
+					data.inventory[str(slot)]["id"] = "0"
+				break
+	return data
 
 
 func minus_money(amount:float, data:Dictionary) -> Dictionary:
@@ -217,7 +306,7 @@ func _on_ItemList_item_selected(index):
 	if(!_item_list_1.get_item_text(index) == " "):
 		var item_id = _get_item_id_from_slot_id(index, data_player)
 		_update_center_item(index, _item_list_1, item_id)
-		_set_center_item_visible(true)
+		set_center_item_visible(true)
 		if(button_multi.text == "Buy" || button_multi.text == "Sell" ):
 			button_multi.text = "Sell"
 		elif(button_multi.text == "Take" && _item_list_2.visible):
@@ -229,7 +318,7 @@ func _on_ItemList2_item_selected(index):
 	if(!_item_list_2.get_item_text(index) == " "):
 		var item_id = _get_item_id_from_slot_id(index, data_other)
 		_update_center_item(index, _item_list_2, item_id)
-		_set_center_item_visible(true)
+		set_center_item_visible(true)
 		if(button_multi.text == "Buy" || button_multi.text == "Sell" ):
 			button_multi.text = "Buy"
 		elif(button_multi.text == "Give" && _item_list_2.visible):
@@ -265,9 +354,9 @@ func _on_Button_pressed():
 		
 		if(amount > 0):
 			if(_item_list_2.visible):
-	#			if(item_id == 1): return ## dont trade money for money lol, server resources are MY PRECIOUSSS
+#				if(item_id == 1): return ## dont trade money for money lol, server resources are MY PRECIOUSSS
 				if(button_multi.text == "Buy"):
-					if(get_money(data_player) >= get_item_price(item_id) * amount):
+					if(get_money_by_data(data_player) >= get_item_price(item_id) * amount):
 						inventory_add_item(item_id,amount,data_player)
 						minus_money(get_item_price(item_id) * amount, data_player)
 						plus_money(get_item_price(item_id) * amount, data_other)
@@ -280,7 +369,7 @@ func _on_Button_pressed():
 						get_parent().show_info("Not enough money player!")
 						return
 				elif(button_multi.text == "Sell" || button_multi.text == "Trade"):
-					if(get_money(data_other) >= get_item_price(item_id) * amount):
+					if(get_money_by_data(data_other) >= get_item_price(item_id) * amount):
 						inventory_add_item(item_id,amount,data_other)
 						minus_money(get_item_price(item_id) * amount, data_other)
 						plus_money(get_item_price(item_id) * amount, data_player)
@@ -297,14 +386,14 @@ func _on_Button_pressed():
 				elif(button_multi.text == "Give"):
 					inventory_add_item(item_id,amount,data_other)
 			elif(button_multi.text == "Drop"):
-				var drop_data:Dictionary = {"inventory":{}}
-				for slot in range (0, INVENTORY_MAX_SLOTS):
-					if(int(slot) == int(slot_id)):
-						drop_data["inventory"][str(slot)] = {"id": item_id, "amount": amount}
-					else:
-						drop_data["inventory"][str(slot)] = {"id": "0", "amount": 0}
-				get_parent().rpc_spawn_bag(get_parent().get_node("NicknameLabel").text, drop_data, get_parent().global_position)
-			
+				data_other = {"inventory":{}} # create empty inventory
+#				for slot_id in range (0, INVENTORY_MAX_SLOTS): # fill empty inventory with placeholder
+#					data_other["inventory"][str(slot_id)] = {"id": "0", "amount": 0}
+				data_other = load_data(get_parent().get_node("NicknameLabel").text, "Bag")
+				data_other = inventory_add_item(item_id,amount,data_other) # add item to inventory
+#				print(data_other)
+				get_parent().rpc_spawn_bag(get_parent().get_node("NicknameLabel").text, data_other, get_parent().global_position)
+				
 			if(data.inventory[str(slot_id)]["amount"] - amount > 0):
 				data.inventory[str(slot_id)]["amount"] -= amount
 			else:
@@ -318,4 +407,5 @@ func _on_Button_pressed():
 				Global_DataParser.write_data(url_data_other, data_other)
 				load_items(_item_list_2, data_other)
 			
-			_set_center_item_visible(false)
+			set_center_item_visible(false)
+			get_parent().update_vars()

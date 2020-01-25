@@ -35,7 +35,7 @@ __meta__ = {
 [node name="Alkubra" type="Area2D" parent="." groups=[
 "shops",
 ]]
-position = Vector2( 110, 270 )
+position = Vector2( 1064, 592 )
 
 [node name="Sprite" type="Sprite" parent="Alkubra"]
 position = Vector2( 100, 100 )

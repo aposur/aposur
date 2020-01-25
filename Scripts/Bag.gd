@@ -1,9 +1,6 @@
 extends Node2D
 
 
-const INVENTORY_MAX_SLOTS = 30
-
-
 onready var url_data:String = ""
 onready var data:Dictionary = Dictionary()
 
@@ -14,20 +11,21 @@ func _ready():
 
 
 sync func init(inventory:Control, name:String, data:Dictionary, spawn_position:Vector2):
-	load_data(inventory, name, "Bag", data)
+#	inventory.load_data(inventory, name, "Bag", data)
 #	rpc("load_data", inventory, name, "Bag", data)
-#	data = inventory.load_data(name, "Bag")
+	data = inventory.load_data(name, "Bag")
+	print(data)
 	position = spawn_position
 
 
-func load_data(inventory:Control, filename:String, item_list_label:String = "Bag", data_player:Dictionary = Dictionary()) -> Dictionary:
-#	if(item_list_label == "Bag"):
-	url_data = "res://Database//data_bag_" + filename + ".json"
-	data = Global_DataParser.load_data(url_data)
-	if ((data.empty() && item_list_label == "Bag" && !data_player.empty())):
-		Global_DataParser.write_data(url_data, data_player)
-		data = data_player
-	return data
+#func load_data(inventory:Control, filename:String, item_list_label:String = "Bag", data_player:Dictionary = Dictionary()) -> Dictionary:
+##	if(item_list_label == "Bag"):
+#	url_data = "res://Database//data_bag_" + filename + ".json"
+#	data = Global_DataParser.load_data(url_data)
+#	if ((data.empty() && item_list_label == "Bag" && !data_player.empty())):
+#		Global_DataParser.write_data(url_data, data_player)
+#		data = data_player
+#	return data
 
 
 func reload_data() -> Dictionary:
@@ -40,7 +38,6 @@ func is_data_empty_by_inventory(inventory:Control) -> bool:
 
 
 func rpc_destroy_self():
-	if(!is_network_master()): return
 	rpc("destroy_self")
 
 

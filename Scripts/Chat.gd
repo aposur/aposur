@@ -76,3 +76,7 @@ func _on_LineEdit_focus_exited():
 func _on_LineEdit_text_entered(new_text):
 	_send_message(new_text)
 	_chat_input.release_focus()
+
+
+func _on_Button_pressed():
+	_on_LineEdit_text_entered(_chat_input.text)
