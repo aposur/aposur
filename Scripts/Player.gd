@@ -22,6 +22,8 @@ puppet var slave_movement = Vector2(0.0, 0.0)
 
 var is_other_focused = false setget set_is_other_focused, get_is_other_focused
 
+onready var _bag_url:String = $NicknameLabel.text
+
 onready var _inventory = $Inventory
 onready var _inventory_button = $InventoryButton
 onready var _info_label = $InfoLabel
@@ -73,8 +75,8 @@ func _input(event):
 			if Input.is_action_pressed('ui_up'):
 				velocity.y -= 1
 			if Input.is_action_pressed('die'):
-#				rpc("_die_and_loose_items", $NicknameLabel.text, _data_player, $Sprite.global_position)
-				_die_and_loose_items($NicknameLabel.text, _data_player, $Sprite.global_position)
+				rpc("_die_and_loose_items", $NicknameLabel.text, _data_player, $Sprite.global_position)
+#				_die_and_loose_items($NicknameLabel.text, _data_player, $Sprite.global_position)
 		
 		velocity = velocity.normalized()
 	else:
@@ -107,7 +109,7 @@ func _physics_process(delta):
 		show_info("My health is going down. I need some water fast!")
 		$Health.value = int(health)
 		if(health < 0):
-			_die_and_loose_items($NicknameLabel.text, _data_player, $Sprite.global_position)
+			rpc("_die_and_loose_items", $NicknameLabel.text, _data_player, $Sprite.global_position)
 	
 	if(food > 0):
 		food -= delta * 0.001
@@ -161,7 +163,7 @@ func _update_stats():
 	$Stats/WeightCountLabel.text = str(weight).pad_decimals(2) + "/" + str(max_weight) + " kg"
 
 
-func _die_and_loose_items(nickname:String, data:Dictionary, die_position:Vector2):
+sync func _die_and_loose_items(nickname:String, data:Dictionary, die_position:Vector2):
 #	$RespawnTimer.start()
 	set_physics_process(false)
 	for child in get_children():
@@ -177,19 +179,22 @@ func _die_and_loose_items(nickname:String, data:Dictionary, die_position:Vector2
 		show_info("I have died and lost all items. AAAAAAAAHHH!! *Death*: Just chill 5 seconds until respawn")
 
 
-func rpc_spawn_bag(nickname:String, data:Dictionary, die_position:Vector2) -> void:
+func rpc_spawn_bag(nickname:String, data:Dictionary, die_position:Vector2, url_data:String="") -> void:
 	if(is_network_master()):
-		rpc("spawn_bag", nickname, data, die_position)
+		rpc("spawn_bag", nickname, data, die_position, url_data)
 	
 
 
-sync func spawn_bag(nickname:String, data:Dictionary, die_position:Vector2) -> void:
+sync func spawn_bag(nickname:String, data:Dictionary, die_position:Vector2, url_data:String="") -> void:
 	if(!_inventory.is_inventory_empty_by_data(data)):
 		bag = load('res://Scenes/Bag.tscn').instance()
-#		bag.name = nickname + "_" + str(Global_DataParser.rng.randi())
-		bag.name = nickname
+		bag.name = nickname + "_" + str(Global_DataParser.rng.randi())
+#		bag.name = nickname
 		$'/root/Game/'.add_child(bag)
-		bag.init(_inventory, bag.name, data, die_position)
+		var bag_url_data = "res://Database//data_bag_" + bag.name + ".json"
+		Global_DataParser.write_data(bag_url_data, data)
+		bag.init(_inventory, bag.name, data, die_position, bag_url_data)
+		bag.reload_data_by_inventory(_inventory)
 
 
 func _remove_bag_by_area2d(area) -> void:
@@ -275,10 +280,10 @@ func _on_Player_area_entered(area):
 		_inventory.set_other_visible(true)
 		load_data(area.get_parent().name, "Bag")
 		_inventory.button_multi.text = "Take"
-	elif(area.is_in_group("players")):
+	elif(area.is_in_group("players") && area.get_node("Sprite").is_visible_in_tree()):
 		print("Fight!")
 		if(area.get_node("Stats/HealthCountLabel").text > $Stats/HealthCountLabel.text):
-			_die_and_loose_items($NicknameLabel.text, _data_player, $Sprite.global_position)
+			rpc("_die_and_loose_items", $NicknameLabel.text, _data_player, $Sprite.global_position)
 
 
 func _on_Player_area_exited(area):
@@ -289,17 +294,21 @@ func _on_Player_area_exited(area):
 	if(area.is_in_group("bags")):
 #		if(get_tree().is_network_server()):
 #			rset("_inventory",_inventory)
-		area.get_parent().reload_data()
-		if(area.get_parent().is_data_empty_by_inventory(_inventory)):
+		area.get_parent().reload_data_by_inventory(_inventory)
+		var _is_bag_empty:bool = area.get_parent().is_data_empty_by_inventory(_inventory)
+		rset("_is_bag_empty", _is_bag_empty)
+		if(_is_bag_empty):
 			_remove_bag_by_area2d(area)
 
 
 func _on_InventoryButton_button_down():
 	set_is_other_focused(true)
 	if(_inventory.is_visible()):
+		_inventory_button.modulate = Color(1, 1, 1, 0.5)
 		_inventory.visible = false
 		set_is_other_focused(false)
 	else:
+		_inventory_button.modulate = Color(1, 1, 1, 1)
 		_inventory.visible = true
 
 
@@ -339,8 +348,10 @@ func _on_MapButton_button_down():
 		_inventory.visible = false
 		_map_button.set_scale($Camera2D.zoom)
 		_map_button.set_position(_map_button_position)
+		_inventory_button.modulate = Color(1, 1, 1, 0.5)
 	else:
 		_map_zoom(_map_camera_zoom)
+		_inventory_button.modulate = Color(1, 1, 1, 1)
 
 
 func _on_MapVSlider_value_changed(value):
@@ -370,3 +381,10 @@ func _map_zoom(zoom:Vector2 = Vector2(1,1)):
 	_map_button.show()
 	_map_button.set_scale($Camera2D.zoom)
 	_map_button.set_position(_map_button_position * $Camera2D.zoom)
+
+
+func _on_MapButton_pressed():
+	if($Camera2D.zoom == Vector2(1,1)):
+		_map_button.modulate = Color(1, 1, 1, 0.5)
+	else:
+		_map_button.modulate = Color(1, 1, 1, 1)

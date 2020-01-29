@@ -17,6 +17,7 @@ _global_script_class_icons={
 
 config/name="Apocalypse Survivor"
 run/main_scene="res://Scenes/Menu.tscn"
+boot_splash/image="res://Assets/Images/splash.png"
 config/icon="res://Assets/Images/player.png"
 
 [autoload]

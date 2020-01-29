@@ -12,6 +12,7 @@ onready var _item_list_label_2 = $Panel/ItemList2Label
 
 var url_data_player
 var url_data_other
+var url_data:String
 
 puppet var data_player:Dictionary
 puppet var data_other:Dictionary
@@ -29,12 +30,16 @@ func _ready():
 	set_center_item_visible(false)
 
 
-func load_data(filename:String, item_list_label:String = "Player", is_clear_items:bool = false) -> Dictionary:
-		
-	var url_data = "res://Database//data_" + item_list_label.to_lower() + "_" + filename + ".json"
+func load_data(filename:String, item_list_label:String = "Player", is_clear_items:bool = false, is_save_data:bool = false, data_save:Dictionary = {}, load_from_url_data:String = "") -> Dictionary:
+	
+	url_data = "res://Database//data_" + item_list_label.to_lower() + "_" + filename + ".json"
+	
+	if(is_save_data):
+		Global_DataParser.write_data(url_data, data_save)
+	
 	var data:Dictionary = Global_DataParser.load_data(url_data)
 	
-	if (data.empty() || is_clear_items):
+	if (data.empty() || is_clear_items && !is_save_data):
 		var dict:Dictionary = {"inventory":{}}
 		for slot in range (0, INVENTORY_MAX_SLOTS):
 			if(int(slot) == 0 && item_list_label == "Player" && !is_clear_items):
@@ -72,7 +77,7 @@ func load_data(filename:String, item_list_label:String = "Player", is_clear_item
 	return data
 
 
-func load_items(item_list:Control = _item_list_1, data:Dictionary = data_player) -> void:
+func load_items(item_list:Control = _item_list_1, data:Dictionary = data_player) -> Dictionary:
 	var selected_items = item_list.get_selected_items()
 	var slot_id
 	if(selected_items): # check if item was selected before reloading items
@@ -87,6 +92,7 @@ func load_items(item_list:Control = _item_list_1, data:Dictionary = data_player)
 		_item_list_1.select(slot_id)
 		_on_ItemList_item_selected(slot_id)
 #		_update_center_item(slot_id, item_list, _get_item_id_from_slot_id(slot_id, data))
+	return data
 
 
 func unload_items(filename:String, item_list_label:String = "Player") -> void:
@@ -280,7 +286,6 @@ func inventory_add_item(item_id:int, amount:int, data) -> Dictionary:
 			return Dictionary()
 		data.inventory[String(slot)] = {"id": String(item_id), "amount": amount}
 		return data
-
 	for slot in range (0, INVENTORY_MAX_SLOTS):
 		if (int(data.inventory[String(slot)]["id"]) == int(item_id)):
 			if (int(item_data["stack_limit"]) > int(data.inventory[String(slot)]["amount"])):
@@ -387,12 +392,12 @@ func _on_Button_pressed():
 					inventory_add_item(item_id,amount,data_other)
 			elif(button_multi.text == "Drop"):
 				data_other = {"inventory":{}} # create empty inventory
-#				for slot_id in range (0, INVENTORY_MAX_SLOTS): # fill empty inventory with placeholder
-#					data_other["inventory"][str(slot_id)] = {"id": "0", "amount": 0}
-				data_other = load_data(get_parent().get_node("NicknameLabel").text, "Bag")
+				for slot_id in range (0, INVENTORY_MAX_SLOTS): # fill empty inventory with placeholder
+					data_other["inventory"][str(slot_id)] = {"id": "0", "amount": 0}
+					
 				data_other = inventory_add_item(item_id,amount,data_other) # add item to inventory
-#				print(data_other)
-				get_parent().rpc_spawn_bag(get_parent().get_node("NicknameLabel").text, data_other, get_parent().global_position)
+				
+				get_parent().rpc_spawn_bag(get_parent().get_node("NicknameLabel").text, data_other, get_parent().global_position, url_data)
 				
 			if(data.inventory[str(slot_id)]["amount"] - amount > 0):
 				data.inventory[str(slot_id)]["amount"] -= amount

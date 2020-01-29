@@ -1,20 +1,20 @@
 extends Node2D
 
 
-onready var url_data:String = ""
-onready var data:Dictionary = Dictionary()
-
+onready var _url_data:String = ""
+onready var _data:Dictionary = Dictionary()
+var _name:String
 
 func _ready():
 	set_process(false)
 	set_process_input(false)
 
 
-sync func init(inventory:Control, name:String, data:Dictionary, spawn_position:Vector2):
-#	inventory.load_data(inventory, name, "Bag", data)
+sync func init(inventory:Control, name:String, data:Dictionary, spawn_position:Vector2, url_data:String = ""):
 #	rpc("load_data", inventory, name, "Bag", data)
-	data = inventory.load_data(name, "Bag")
-	print(data)
+	_name = name
+	_url_data = url_data
+	_data = inventory.load_data(name, "Bag")
 	position = spawn_position
 
 
@@ -28,13 +28,13 @@ sync func init(inventory:Control, name:String, data:Dictionary, spawn_position:V
 #	return data
 
 
-func reload_data() -> Dictionary:
-	data = Global_DataParser.load_data(url_data)
-	return data
+func reload_data_by_inventory(inventory:Control) -> Dictionary:
+	_data = inventory.load_data(_name, "Bag")
+	return _data
 
 
 func is_data_empty_by_inventory(inventory:Control) -> bool:
-	return inventory.is_inventory_empty_by_data(data)
+	return inventory.is_inventory_empty_by_data(_data)
 
 
 func rpc_destroy_self():
@@ -45,4 +45,4 @@ sync func destroy_self() -> void:
 	for child in get_children():
 		if child.has_method('queue_free'):
 			child.queue_free()
-	Global_DataParser.delete_file(url_data)
+	Global_DataParser.delete_file(_url_data)

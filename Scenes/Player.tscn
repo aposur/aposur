@@ -444,4 +444,5 @@ __meta__ = {
 [connection signal="button_down" from="MapButton" to="." method="_on_MapButton_button_down"]
 [connection signal="mouse_entered" from="MapButton" to="." method="_on_MapButton_mouse_entered"]
 [connection signal="mouse_exited" from="MapButton" to="." method="_on_MapButton_mouse_exited"]
+[connection signal="pressed" from="MapButton" to="." method="_on_MapButton_pressed"]
 [connection signal="value_changed" from="MapVSlider" to="." method="_on_MapVSlider_value_changed"]
