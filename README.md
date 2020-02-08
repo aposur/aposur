@@ -30,5 +30,5 @@ Best ways to contact us (you get fastest response time) by order:
 
 
 # Contribute
-Feel free to add any functionality you want (that is the advantage of open-source)! Even if you see same code which could be written better fell free to do so we all want to improve here. :)
+Feel free to add any functionality you want (that is the advantage of open-source)! Even if you see same code which could be written better feel free to do so we all want to improve here. :)
 

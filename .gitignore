@@ -12,3 +12,5 @@ data_*/
 *.exe
 *.x86_64
 *.apk
+/aposur_v1.0-alpha_linux.pck
+/aposur_v1.0-alpha_linux.x86

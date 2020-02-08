@@ -32,25 +32,74 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Alkubra" type="Area2D" parent="." groups=[
+[node name="Filandhyde" type="Area2D" parent="." groups=[
 "shops",
 ]]
 position = Vector2( 1064, 592 )
 
-[node name="Sprite" type="Sprite" parent="Alkubra"]
+[node name="Sprite" type="Sprite" parent="Filandhyde"]
 position = Vector2( 100, 100 )
 texture = ExtResource( 2 )
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Alkubra"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Filandhyde"]
 position = Vector2( 100, 100 )
 shape = SubResource( 1 )
 
-[node name="Label" type="Label" parent="Alkubra"]
+[node name="Label" type="Label" parent="Filandhyde"]
 margin_left = 60.0
 margin_top = 90.0
 margin_right = 140.0
 margin_bottom = 110.0
-text = "Alkubra"
+text = "Filandhyde"
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Quebec" type="Area2D" parent="." groups=[
+"shops",
+]]
+position = Vector2( -1880, 720 )
+
+[node name="Sprite" type="Sprite" parent="Quebec"]
+position = Vector2( 100, 100 )
+texture = ExtResource( 2 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Quebec"]
+position = Vector2( 100, 100 )
+shape = SubResource( 1 )
+
+[node name="Label" type="Label" parent="Quebec"]
+margin_left = 56.0
+margin_top = 88.0
+margin_right = 144.0
+margin_bottom = 108.0
+text = "Quebec"
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Osthaven" type="Area2D" parent="." groups=[
+"shops",
+]]
+position = Vector2( -1648, -1264 )
+
+[node name="Sprite" type="Sprite" parent="Osthaven"]
+position = Vector2( 100, 100 )
+texture = ExtResource( 2 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Osthaven"]
+position = Vector2( 100, 100 )
+shape = SubResource( 1 )
+
+[node name="Label" type="Label" parent="Osthaven"]
+margin_left = 64.0
+margin_top = 88.0
+margin_right = 136.0
+margin_bottom = 108.0
+rect_pivot_offset = Vector2( 464, 56 )
+text = "Osthaven"
 align = 1
 __meta__ = {
 "_edit_use_anchors_": false
